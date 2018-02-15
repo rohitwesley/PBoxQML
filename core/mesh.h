@@ -31,11 +31,12 @@ public:
     void                    create();
     bool                    hasIndices() const { return mIndices.isEmpty(); }
     int                     indicesCount() const { return mIndices.count(); }
-    bool                    isInside(QVector3D pointer) const { qDebug() << pointer << "Implement for" << objectName(); return false;}
+    bool                    isInside(QVector3D pointer) const;
     GLenum                  mode() const { return mMode; }
     QMatrix4x4              modelMatrix() const { return mModelMatrix; }
     void                    release();
     void                    rotate(float angle, float x, float y, float z) { mModelMatrix.rotate(angle, x, y, z); }
+    void                    rotate(QMatrix4x4 rot) { mModelMatrix *= rot; }
     void                    scale(float x, float y, float z) {mModelMatrix.scale(x,y,z);}
     void                    scale(float f) { mModelMatrix.scale(f);}
     void                    setShaders(const QString &vertexFile, const QString &fragmentFile, const QString& geometryFile = QString());
@@ -46,12 +47,13 @@ public:
     void                    setOpacity(float alpha) {mOpacity = alpha;}
     float                   opacity() const {return mOpacity;}
     QOpenGLShaderProgram    *shaderProgram() const { return mShaderProgram; }
-    void                    translate(float x, float y, float z) { mModelMatrix.translate(x, y, z); }
+    void                    translate(float x, float y, float z);
+    void                    resetMatrix();
     Vertex&                 vertex(int index)  { return mVertices[index];}
     QVector<Vertex>         vertices() const { return mVertices; }
     int                     verticesCount() const { return mVertices.count(); }
     void                    setMode(GLenum mode) { mMode = mode;}
-    void                    resetTransform() { mModelMatrix.setToIdentity(); }
+    void                    resetTransform();
     void                    setDebug(bool enable = true);
     QImage                  textureImage() const { return mTextureImage; }
     void test();
@@ -76,6 +78,7 @@ private:
     QVector<Vertex>             mVertices;              // list of vertexes for this mesh
     QVector<Material>           mMaterials;             // what is this ?
     float                       mOpacity;               // what is this ?
+    QVector3D                   mPosition;                // position
 
 
 };

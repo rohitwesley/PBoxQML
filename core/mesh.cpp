@@ -58,7 +58,9 @@ void Mesh::bind()
     // From this place, shaders program is active by the scene
     if (mTexture->isCreated()){
 
-        mTexture->bind();
+        mTexture->bind(1);
+        // Use texture unit 1 which contains the object texture
+        mShaderProgram->setUniformValue("fragTexture", 1);
         mShaderProgram->setUniformValue("has_texture",true);
 
     }
@@ -144,6 +146,17 @@ void Mesh::create()
 }
 
 //===================================================================
+bool Mesh::isInside(QVector3D pointer) const {
+    //qDebug() << pointer << "Implement for" << objectName() << " at " << mPosition;
+    //qDebug() << " Distance: " << pointer.distanceToPoint(mPosition);
+    if(pointer.distanceToPoint(mPosition)<1)
+        return true;
+    else
+        return false;
+
+}
+
+//===================================================================
 void Mesh::release()
 {
     mVao.release();
@@ -197,6 +210,32 @@ void Mesh::setTextureImage(const QImage &image)
         exit(QtFatalMsg);
     }
     mTextureImage = image;
+}
+
+void Mesh::translate(float x, float y, float z) {
+    mModelMatrix.translate(x, y, z);
+    QVector3D temp;
+    mPosition.setX(x);
+    mPosition.setY(y);
+    mPosition.setZ(z);
+    mPosition = mPosition + temp;
+    //qDebug() << " Point " << mPosition;
+
+}
+
+void Mesh::resetMatrix()
+{
+    mModelMatrix.setToIdentity();
+    mPosition.setX(0);
+    mPosition.setY(0);
+    mPosition.setZ(0);
+}
+
+void Mesh::resetTransform() {
+    mModelMatrix.setToIdentity();
+    mPosition.setX(0);
+    mPosition.setY(0);
+    mPosition.setZ(0);
 }
 
 //===================================================================

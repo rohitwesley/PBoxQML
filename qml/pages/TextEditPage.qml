@@ -119,7 +119,7 @@ Page {
 
     FileDialog {
         id: openDialog
-//        fileMode: FileDialog.OpenFile
+        fileMode: FileDialog.OpenFile
 //        selectedNameFilter.index: 1
         nameFilters: ["Text files (*.txt)", "HTML files (*.html *.htm)", "Image files (*.jpg *.png)", "All files (*)"]
         folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
@@ -128,7 +128,7 @@ Page {
 
     FileDialog {
         id: saveDialog
-//        fileMode: FileDialog.SaveFile
+        fileMode: FileDialog.SaveFile
 //        defaultSuffix: document.fileType
         nameFilters: openDialog.nameFilters
 //        selectedNameFilter.index: document.fileType === "txt" ? 0 : 1

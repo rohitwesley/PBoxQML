@@ -12,7 +12,8 @@ HEADERS += \
     $$PWD/parser/sqlmodel.h \
 #    $$PWD/parser/svgmodel.h \
     $$PWD/parser/utils.h \
-    $$PWD/parser/xmlhandler.h
+    $$PWD/parser/xmlhandler.h \
+    $$PWD/parser/svgmodel.h
 
 
 SOURCES += \
@@ -26,7 +27,8 @@ SOURCES += \
     $$PWD/parser/sqlconversationmodel.cpp \
     $$PWD/parser/sqlmodel.cpp \
 #    $$PWD/parser/svgmodel.cpp \
-    $$PWD/parser/xmlhandler.cpp
+    $$PWD/parser/xmlhandler.cpp \
+    $$PWD/parser/svgmodel.cpp
 
 DISTFILES +=
 

@@ -26,16 +26,6 @@
         <file>media/svgs/char_001.svg</file>
         <file>media/svgs/sceen_001.svg</file>
         <file>media/textures/damier.png</file>
-        <file>media/textures/env_earthmap.jpg</file>
-        <file>media/textures/env_mars_1k_color.jpg</file>
-        <file>media/textures/env_mercurymap.jpg</file>
-        <file>media/textures/env_moonmap1k.jpg</file>
-        <file>media/textures/env_plutomap1k.jpg</file>
-        <file>media/textures/env_venusmap.jpg</file>
-        <file>media/textures/hmap_displacement_map_by_michalis.exr</file>
-        <file>media/textures/hmap_lunar_displacement_seamless_01.tif</file>
-        <file>media/textures/hmap_terrain_color_01.png</file>
-        <file>media/textures/hmap_terrain_heightmap_01.png</file>
         <file>media/textures/HUD_001_HUD_1x1.png</file>
         <file>media/textures/mat_normals.jpg</file>
         <file>media/textures/mat_Outline.png</file>
@@ -120,5 +110,8 @@
         <file>qml/pages/svgmodel/SvgQueryDialog.qml</file>
         <file>qml/pages/svgmodel/SvgQueryForm.qml</file>
         <file>qml/pages/svgmodel/SvgSectionDelegate.qml</file>
+        <file>media/gifs/gif_03_flyDragon.gif</file>
+        <file>media/textures/tex04.png</file>
+        <file>shaders/fs_0_bSpline.fsh</file>
     </qresource>
 </RCC>

@@ -10,7 +10,7 @@
 namespace cgl {
 //===================================================================
 View::View(int refreshRate) : QOpenGLWindow(),
-    mAspect(45.0), mMouseClicked(false), mOpacity(false)
+    mMouseClicked(false), mOpacity(false)
 {
     // ctor
 
@@ -35,8 +35,9 @@ View::View(int refreshRate) : QOpenGLWindow(),
     int timerInterval = second / refreshRate;
     mTimer = new QTimer(this);
     connect(mTimer, SIGNAL(timeout()), this, SLOT(timeOutSlot()));
-   // mTimer->start(timerInterval);
+    mTimer->start(timerInterval);
     // Tu fais pas un jeux video! Tu appel update() qd tu veux rafrachir!
+
 }
 
 //===================================================================
@@ -52,6 +53,7 @@ void View::initializeGL()
 
     mScene->createMeshes();
     context()->functions()->glViewport(0, 0, width(), height());
+
 }
 
 //===================================================================
@@ -63,7 +65,7 @@ void View::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Escape:
         close();
         break;
-    case Qt::Key_F1:
+    case Qt::Key_F:
         toggleFullScreen();
         break;
     case Qt::Key_Right:
@@ -83,7 +85,7 @@ void View::keyPressEvent(QKeyEvent *event)
             mScene->camera()->incY(+1);
         else
             mScene->camera()->incPhi(+1);
-         break;
+        break;
     case Qt::Key_Down:
         if (event->modifiers().testFlag(Qt::ShiftModifier))
             mScene->camera()->incY(-1);
@@ -121,10 +123,44 @@ void View::keyPressEvent(QKeyEvent *event)
         }
     }
         break;
+    case Qt::Key_C:
+        if (event->modifiers().testFlag(Qt::ShiftModifier)){
+            mScene->autoclean();
+        }
+        else if (event->modifiers().testFlag(Qt::AltModifier)){
+            resize(600, 600);
+            mScene->reset();
+        }
+        else {
+            mScene->clean();
+        }
+        break;
+    case Qt::Key_Space:
+        mScene->updateScene(0);
+        break;
+    case Qt::Key_1:
+        mScene->updateScene(-1);//Start
+        break;
+    case Qt::Key_2:
+        mScene->updateScene(-1);//Rewind
+        break;
+    case Qt::Key_3:
+        mScene->updateScene(1);//Forward
+        break;
+    case Qt::Key_4:
+        mScene->updateScene(-1);//End
+        break;
+    case Qt::Key_E:
+        mScene->setPlayMode("editLoop");
+        break;
+    case Qt::Key_P:
+        mScene->setPlayMode("playLoop");
+        break;
     case Qt::Key_R:
-        mScene->camera()->reset();
+        mScene->setPlayMode("sampleLoop");
         break;
     }
+
     update();
 }
 
@@ -133,62 +169,51 @@ void View::mouseMoveEvent(QMouseEvent *event)
 {
     // define action in response to mouse moved
 
-    if (mMouseClicked) {
-        float xOffset = (event->pos().x() - mMousePosition.x());
-        float yOffset = (event->pos().y() - mMousePosition.y());
+    //    if (mMouseClicked) {
+    //        float xOffset = (event->pos().x() - mMousePosition.x());
+    //        float yOffset = (event->pos().y() - mMousePosition.y());
 
-        mScene->camera()->setTheta(xOffset);
-        mScene->camera()->setPhi(yOffset);
-        mMousePosition = event->pos();
+    //        mScene->camera()->setTheta(xOffset);
+    //        mScene->camera()->setPhi(yOffset);
+    //        mMousePosition = event->pos();
 
-    } else {
+    //    }
+    float u =  (float)event->pos().x() / (float)width();
+    float v = (float)event->pos().y() / (float)height();
+    float l = 0.0;
+    if (mMouseClicked) l = 1.0;
+    QVector3D posMouseUV(u, v, l);
+    QString msg = mScene->whereIs(posMouseUV);
+    //qDebug() << Q_FUNC_INFO << msg;
 
-        // see http://antongerdelan.net/opengl/raycasting.html
-
-        float x =  ( 2.0 * event->pos().x() ) / width() -1.0;
-        float y = 1.0 - ( 2.0 * event->pos().y()) / height();              // revert the orientation of y ( 1 on the top)
-        float z = 1.0; // dummy
-
-        QVector3D posMouse(x, y, z);                                         // normalized mouse position x and y in [-1, 1], z dummy
-
-
-        float w = 1.0; // dummy
-        QVector4D rayClip(posMouse.x(), posMouse.y(), -posMouse.z(), w);     // clip coordinates, z negative is pointing forwards, w dummy
-
-        QVector4D rayEye = scene()->projectionMatrix().inverted() * rayClip; // transform in the camera coordinate system
-        rayEye.setZ(-1.0);
-        rayEye.setW(0.0);
-
-
-        QVector4D tempo = scene()->viewMatrix().inverted() * rayEye;    // in the world coordinate system
-        QVector3D rayWorld;
-        rayWorld.setX(tempo.x());
-        rayWorld.setY(tempo.y());
-        rayWorld.setZ(tempo.z());
-        rayWorld.normalize();
-
-        qDebug() << Q_FUNC_INFO << "rayWorld" << rayWorld;
-
-        qDebug() << Q_FUNC_INFO << scene()->whereIs(rayWorld);
-
-//        for (int index = 0; index < scene()->mMeshes.at(1)->verticesCount(); index++) {
-//            QVector3D pos =  scene()->mMeshes.at(1)->vertices().at(index).pos();
-//            QVector3D popo = scene()->projectionMatrix() * scene()->viewMatrix() * pos;
-//            qDebug() << Q_FUNC_INFO << "before" <<  popo;
-//            popo = scene()->projectionMatrix() * scene()->viewMatrix() * scene()->mMeshes.at(1)->modelMatrix() * pos;
-//            qDebug() << Q_FUNC_INFO <<  "after" << popo;
-//        }
-    }
     update();
 }
+
+
+//===================================================================
+void View::timerEvent(QTimerEvent *event)
+{
+    update();
+}
+
 
 //===================================================================
 void View::mousePressEvent(QMouseEvent *event)
 
 {
     // set mouse clicked
-        qDebug() << Q_FUNC_INFO;
-        mMouseClicked = !mMouseClicked;
+    //qDebug() << Q_FUNC_INFO;
+    mMouseClicked = true;
+
+}
+
+//===================================================================
+void View::mouseReleaseEvent(QMouseEvent *event)
+
+{
+    // set mouse clicked
+    //qDebug() << Q_FUNC_INFO;
+    mMouseClicked = false;
 
 }
 
@@ -219,8 +244,7 @@ void View::wheelEvent(QWheelEvent *event)
 void View::paintGL()
 {
     // makes the drawing; called each time screen is refreshed
-    mScene->setPerspective(mAspect, ((double) width()) / ((double)height()), 1, 100.0f);
-    mScene->lookAt(mScene->camera()->position(), mScene->camera()->position() + mScene->camera()->target(), mScene->camera()->up());
+    mScene->setView((float)width(),(float)height());
     mScene->draw();
 }
 
@@ -228,7 +252,7 @@ void View::paintGL()
 void View::resizeGL(int w, int h)
 {
     // resizes the screen
-
+    //qDebug()<<" W: "<<w<<" H: "<<h;
     context()->functions()->glViewport(0, 0, w, h);
 }
 

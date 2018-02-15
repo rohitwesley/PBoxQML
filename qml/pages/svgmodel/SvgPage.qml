@@ -6,7 +6,6 @@ import Qt.labs.platform 1.0
 
 import io.qt.examples.texteditor 1.0
 import SvgUnderQML 1.0
-import OpenGLUnderQML 1.0
 import SqlUnderQML 1.0
 
 Page {
@@ -24,7 +23,7 @@ Page {
     property int currentsvgTypeIndex: -1
     property int currentsvgTypeId: -1
     property string currentsvgTypeName: ""
-    property string inConversationWith: glArea.play
+    property string inConversationWith: "GlModel"
 
     title: svgdocument.fileName + qsTr(" SVG Node List")
 
@@ -65,6 +64,8 @@ Page {
 
     FileDialog {
         id: openDialog
+        fileMode: FileDialog.OpenFile
+//        selectedNameFilter.index: 1
         nameFilters: ["SVG files (*.svg)", "All files (*)"]
         folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         onAccepted: svgdocument.load(file)
@@ -72,9 +73,20 @@ Page {
 
     FileDialog {
         id: saveDialog
+        fileMode: FileDialog.SaveFile
+//        defaultSuffix: document.fileType
         nameFilters: openDialog.nameFilters
         folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         onAccepted: svgdocument.saveAs(file)
+    }
+
+    FileDialog {
+        id: saveImageDialog
+        fileMode: FileDialog.SaveFile
+//        defaultSuffix: document.fileType
+        nameFilters: ["PNG files (*.png)", "All files (*)"]
+        folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        onAccepted: sqlModel.sendMessage(inConversationWith, "getImage:"+file);
     }
 
     ColorDialog {
@@ -168,17 +180,6 @@ Page {
                         sqlArea.visible = true
                     }
                 }
-                ToolButton {
-                    id: glButton
-                    text: "\uf1b2" // fa-cube
-                    font.family: "fontawesome"
-                    onClicked: {
-                        svgtextArea.visible = false
-                        svglistArea.visible = false
-                        sqlArea.visible = false
-                        glArea.visible = true
-                    }
-                }
                 ToolSeparator {
                     contentItem.visible: fileRow.y === editRow.y
                 }
@@ -243,22 +244,6 @@ Page {
         }
         onTypeName: {
             currentsvgTypeName = tag
-        }
-    }
-
-    GlModel {
-        id: glArea
-        SequentialAnimation on t {
-            NumberAnimation { to: 1; duration: 2500; easing.type: Easing.InQuad }
-            NumberAnimation { to: 0; duration: 2500; easing.type: Easing.OutQuad }
-            loops: Animation.Infinite
-            running: true
-        }
-        onPlayChanged: {
-            inConversationWith = play
-        }
-        onSqlChanged: {
-            sqlModel.refreshMessage()
         }
     }
 
@@ -402,8 +387,9 @@ Page {
             id: sqlpane
             Layout.fillWidth: true
 
-            RowLayout {
+            GridLayout {
                 width: parent.width
+                columns: 3
 
                 ComboBox {
                     id: glMessangerType
@@ -423,33 +409,59 @@ Page {
                     id: sendButton
                     text: qsTr("Send")
                     enabled: messageField.length > 0
+                    highlighted: true
+                    anchors.margins: 10
                     onClicked: {
                         sqlModel.sendMessage(inConversationWith, messageField.text);
                         messageField.text = "";
                     }
                 }
+
                 Button {
                     id: clearMessagesButton
                     text: "\uf014" // fa-trash-o
                     font.family: "fontawesome"
-                    //enabled: messageField.length > 0
                     onClicked: {
                         sqlModel.clearMessages(inConversationWith)
                     }
                 }
+                Button {
+                    id: editModeMessagesButton
+                    text: "\uf044" // fa-edit
+                    font.family: "fontawesome"
+                    onClicked: {
+                        sqlModel.sendMessage(inConversationWith, "editLoop");
+                    }
+                }
+                Button {
+                    id: playModeMessagesButton
+                    text: "\uf144" // fa-play-circle
+                    font.family: "fontawesome"
+                    onClicked: {
+                        sqlModel.sendMessage(inConversationWith, "playLoop");
+                    }
+                }
+                Button {
+                    id: sampleModeMessagesButton
+                    text: "\uf04e" // fa-forward
+                    font.family: "fontawesome"
+                    onClicked: {
+                        sqlModel.sendMessage(inConversationWith, "sampleLoop");
+                    }
+                }
+                Button {
+                    id: getImageMessagesButton
+                    text: "\uf1c5" // fa-file-image
+                    font.family: "fontawesome"
+                    onClicked: {
+                        //sqlModel.sendMessage(inConversationWith, "getImage");
+                        saveImageDialog.open();
+                    }
+                }
+
             }
         }
     }
 
-    RoundButton {
-        text: qsTr("+")
-        highlighted: true
-        anchors.margins: 10
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        onClicked:{
-            glArea.play = glMessangerType.currentText
-        }
-    }
 
 }

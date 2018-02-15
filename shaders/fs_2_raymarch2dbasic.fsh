@@ -179,7 +179,7 @@ vec2 solveIKJoint( vec2 p, float l1, float l2 )
     return q + q.yx*vec2(-1.0,1.0)*sqrt( s );
 }
 //=============Interpolate along a segment=============
-// use de Casteljau's algorithm
+// use De Casteljau's algorithm
 vec2 interpolate(vec2 a, vec2 b, vec2 c, float p)
 {
     vec2 v0 = mix(a, b, p);

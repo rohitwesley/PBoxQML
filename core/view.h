@@ -40,14 +40,15 @@ protected:
     virtual void scale(float updown);
 
 private:
-    void         keyPressEvent(QKeyEvent *event);
-    void         mouseMoveEvent(QMouseEvent *event);
-    void         mousePressEvent(QMouseEvent *event);
-    void         wheelEvent(QWheelEvent *event);
-    void         setContext(QOpenGLContext *context) { mContext = context; }
-    void         toggleFullScreen();
+    void        timerEvent(QTimerEvent *event);
+    void        keyPressEvent(QKeyEvent *event);
+    void        mouseMoveEvent(QMouseEvent *event);
+    void        mousePressEvent(QMouseEvent *event);
+    void        mouseReleaseEvent(QMouseEvent *event);
+    void        wheelEvent(QWheelEvent *event);
+    void        setContext(QOpenGLContext *context) { mContext = context; }
+    void        toggleFullScreen();
 
-    float                 mAspect;        // aspect ratio
     QOpenGLContext        *mContext;      // the context of the scene
     QOpenGLDebugLogger    *mDebugLogger;  // engine to log debug messages from QOpenGL
     bool                  mFullScreen;    // full screen mode yes or no

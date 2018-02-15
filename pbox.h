@@ -26,6 +26,8 @@ private:
 
     cgl::View                   view;
     cgl::ModelMesh              *mesh;
+    cgl::ModelMesh              *agent;
+    cgl::ModelMesh              *user;
     QQmlApplicationEngine       engine;
 
 };
