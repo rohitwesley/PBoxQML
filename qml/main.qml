@@ -1,3 +1,4 @@
+import QtQuick.Window 2.2
 import QtQuick 2.9
 import QtQuick.Controls 2.3
 import QtQuick.Controls.Material 2.3
@@ -7,7 +8,7 @@ ApplicationWindow {
     id: mainwindow
     visible: true
     width: 640
-    height: 480
+    height: Screen.desktopAvailableHeight//480
     title: qsTr("PandorasBox")
 
     header: ToolBar {

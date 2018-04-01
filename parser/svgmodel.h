@@ -70,6 +70,18 @@ Q_SIGNALS:
     void typeSize(int count);
     void typeName(const QString &tag);
 
+
+
+//public slots:
+//    void updateActions();
+
+//private slots:
+//    void insertChild();
+//    bool insertColumn();
+//    void insertRow();
+//    bool removeColumn();
+//    void removeRow();
+
 private:
     struct SvgNode {
         QString svgName;

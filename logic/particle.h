@@ -40,7 +40,6 @@ public:
 
     void updatePhysics(float distChange)
     {
-
         position.setY(position.y()+(distChange * speed));
     }
 

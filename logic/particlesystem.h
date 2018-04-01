@@ -17,11 +17,12 @@ class ParticleSystem : public QObject
 public:
     explicit ParticleSystem(QObject *parent = nullptr);
 
-    void setup(float startYPos, float startXPos, int numParticles,
+    void setup(int numParticles,
+               float startXPos, float startYPos,
                float xPosRange, float yPosRange,
                float minSpeed, float speedRange) {
-        this->startYPos = startYPos;
         this->startXPos = startXPos;
+        this->startYPos = startYPos;
         this->xPosRange = xPosRange;
         this->yPosRange = yPosRange;
         this->minSpeed = minSpeed;
@@ -44,7 +45,7 @@ public:
         // (year, month, day, time in seconds)
         QDateTime date = QDateTime::currentDateTime();
         int timetotal = date.time().hour() + date.time().minute() + date.time().second() + date.time().msec();
-        m_shaderproperties.iMode = QVector4D(1.0,0.0,0.0,0.0);//isTexture,isSelected,ModeId
+        m_shaderproperties.iMode = QVector4D(1.0,0.0,0.0,0.0);//TextureId,SelectioId,ModeId
         m_shaderproperties.iResolution = QVector3D(1.0,1.0,1.0);
         m_shaderproperties.iTime = 0.0;
         m_shaderproperties.iTimeDelta = 0.0;
@@ -117,61 +118,61 @@ public:
             particle = particles.at(Id);
         }
 
-        //getParticleMode : isTexture,isSelected,ModeId,null
+        //getParticleMode : TextureId,SelectioId,ModeId,ChannelId
         if(particle->iNameID == "Canves"){
             if(mouseMode=="editLoop"){
                 return QVector4D(0.0,0.0,0.0,0.0);
-                //grid,isSelected,ModeId,null
+                //blank,SelectioId,ModeId,ChannelId
             }
             else if(mouseMode=="playLoop"){
                 if(isFBOTexture)
                     return QVector4D(1.0,0.0,0.0,0.25);
-                    //fragTexture,isSelected,ModeId,channelFBO
+                    //fragTexture,SelectioId,ModeId,channelFBO
                 else
                     return QVector4D(0.0,0.0,0.0,0.0);
-                    //blank,isSelected,ModeId,null
+                    //blank,SelectioId,ModeId,ChannelId
             }
             else if(mouseMode=="sampleLoop"){
                 return QVector4D(0.0,0.0,0.0,0.0);
-                //blank,isSelected,ModeId,null
+                //blank,SelectioId,ModeId,ChannelId
             }
             else
-                return QVector4D(4.0,0.0,0.0,0.0);
-                //color,isSelected,ModeId,null
+                return QVector4D(2.0,0.0,0.0,0.0);
+                //color,SelectioId,ModeId,ChannelId
         }
         else if(particle->iNameID == "User"){
             if(mouseMode=="editLoop"){
-                return QVector4D(1.0,0.0,2.0,0.0);
-                //white,isSelected,bezier,null
+                return QVector4D(0.0,0.0,2.0,0.0);
+                //blank,SelectioId,bezier,ChannelId
             }
             else if(mouseMode=="playLoop"){
-                return QVector4D(1.0,0.0,2.0,0.0);
-                //white,isSelected,bezier,null
+                return QVector4D(0.0,0.0,2.0,0.0);
+                //blank,SelectioId,bezier,ChannelId
             }
             else if(mouseMode=="sampleLoop"){
-                return QVector4D(1.0,0.0,2.0,0.0);
-                //white,isSelected,bezier,null
+                return QVector4D(0.0,0.0,2.0,0.0);
+                //blank,SelectioId,bezier,ChannelId
             }
             else
-                return QVector4D(4.0,0.0,0.0,0.0);
-                //color,isSelected,ModeId,null
+                return QVector4D(2.0,0.0,0.0,0.0);
+                //color,SelectioId,ModeId,ChannelId
         }
         else if(particle->iNameID == "Agent"){
             if(mouseMode=="editLoop"){
-                return QVector4D(1.0,0.0,1.0,0.0);
-                //white,isSelected,scene,null
+                return QVector4D(2.0,0.0,1.0,0.0);
+                //color,SelectioId,scene,ChannelId
             }
             else if(mouseMode=="playLoop"){
-                return QVector4D(1.0,0.0,1.0,0.0);
-                //white,isSelected,scene,null
+                return QVector4D(2.0,0.0,1.0,0.0);
+                //color,SelectioId,scene,ChannelId
             }
             else if(mouseMode=="sampleLoop"){
-                return QVector4D(1.0,0.0,1.0,0.0);
-                //white,isSelected,scene,null
+                return QVector4D(2.0,0.0,1.0,0.0);
+                //color,SelectioId,scene,ChannelId
             }
             else
-                return QVector4D(4.0,0.0,0.0,0.0);
-                //color,isSelected,ModeId,null
+                return QVector4D(2.0,0.0,0.0,0.0);
+                //color,SelectioId,ModeId,ChannelId
         }
         else
             return QVector4D(0.0,0.0,0.0,0.0);
@@ -196,10 +197,6 @@ public:
     }
 
     QVector3D getParticleWorldPosition(int Id) {
-        //        for(int i = 0; i < particles.length; i++) {
-        //            Particle particle = particles.at(i);
-        //            particle.getPhysics();
-        //        }
         QVector3D pos;
 
         if(particles.at(Id)->iNameID == "Canves"){
@@ -212,13 +209,10 @@ public:
             pos = QVector3D(0.0,
                             0.0,
                             -0.5);
-//            pos = QVector3D((-0.5+pos.x())*canvesSize/userSize,
-//                            (-0.5+pos.y())*-canvesSize/userSize,
-//                            0.0);
         }
         else if(particles.at(Id)->iNameID == "Agent"){
-            pos = QVector3D((-0.5+pos.x())*canvesSize/botSize,
-                            (-0.5+pos.y())*canvesSize/botSize,
+            pos = QVector3D((-0.5+particles.at(Id)->getParticlePosition().x())*canvesSize/botSize,
+                            (-0.5+particles.at(Id)->getParticlePosition().y())*canvesSize/botSize,
                             1.0+(0.1*(float)Id));
         }
         return pos;
@@ -258,9 +252,9 @@ public:
             }
         }
         else if(particles.at(Id)->iNameID == "Agent"){
-            pos = QVector4D((-0.5+pos.x())*canvesSize/botSize,
-                            (-0.5+pos.y())*canvesSize/botSize,
-                            1.0+(0.1*(float)Id),0.0);
+            pos = QVector3D((-0.5+particles.at(Id)->getParticlePosition().x())*canvesSize/botSize,
+                            (-0.5+particles.at(Id)->getParticlePosition().y())*canvesSize/botSize,
+                            1.0+(0.1*(float)Id));
         }
         return pos;
     }
@@ -396,9 +390,8 @@ public:
                     }
 
                 }
-    //            qDebug()<<i<<" Id "<<particle->iNameID
-    //                   <<" : "<< particle->xpos
-    //                  << ", " << particle->ypos;
+                //                qDebug()<<i<<" Id "<<particle->iNameID
+                //                       <<" : "<< particle->getParticlePosition();
 
             }
         }
@@ -458,7 +451,7 @@ public:
             m_shaderproperties.iDate = QVector4D(date.date().year(),date.date().month(),date.date().day(),timetotal);
 
     //        if(m_shaderproperties.iFrame%30==0) {
-    //            qDebug() << "iMode(isTexture,isSelected,ModeId,null)" << m_shaderproperties.iMode;
+    //            qDebug() << "iMode(TextureId,SelectioId,ModeId,ChannelId)" << m_shaderproperties.iMode;
     //            qDebug() << "iResolution" << m_shaderproperties.iResolution;
     //            qDebug() << "iTime" << m_shaderproperties.iTime;
     //            qDebug() << "iTimeDelta" << m_shaderproperties.iTimeDelta;
@@ -479,8 +472,8 @@ public slots:
 
 public:
     QList<Particle*> particles;
-    float startYPos;
     float startXPos;
+    float startYPos;
     float xPosRange;
     float yPosRange;
     float minSpeed;

@@ -29,8 +29,8 @@ int main(int argc, char *argv[])
 #endif
 
     pandora.setupPModel();
-    pandora.setupPCompute();
     pandora.setupPView();
+    pandora.setupPCompute();
 
     return app.exec();
 }

@@ -135,4 +135,3 @@ void SqlModel::clearMessages(const QString &recipient)
     query.exec(queryString);
     submitAll();
 }
-

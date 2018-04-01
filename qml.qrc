@@ -113,5 +113,10 @@
         <file>media/gifs/gif_03_flyDragon.gif</file>
         <file>media/textures/tex04.png</file>
         <file>shaders/fs_0_bSpline.fsh</file>
+        <file>tree/default.txt</file>
+        <file>qml/pages/svgmodel/DialogShader.qml</file>
+        <file>qml/pages/svgmodel/PboxTree.qml</file>
+        <file>qml/pages/svgmodel/PboxFile.qml</file>
+        <file>qml/pages/svgmodel/PboxList.qml</file>
     </qresource>
 </RCC>

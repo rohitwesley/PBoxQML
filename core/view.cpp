@@ -28,7 +28,7 @@ View::View(int refreshRate) : QOpenGLWindow(),
     mDebugLogger = new QOpenGLDebugLogger(this);
     connect(mDebugLogger, SIGNAL(messageLogged(QOpenGLDebugMessage)), this, SLOT(printLog(QOpenGLDebugMessage)));
 
-    resize(800, 600);
+    resize(600/2, 600/2);
     mMousePosition = QPointF(width() / 2, height() / 2);
 
     int second = 10000; // 1 second = 1000 ms
@@ -128,12 +128,15 @@ void View::keyPressEvent(QKeyEvent *event)
             mScene->autoclean();
         }
         else if (event->modifiers().testFlag(Qt::AltModifier)){
-            resize(600, 600);
+            resize(600/2, 600/2);
             mScene->reset();
         }
         else {
             mScene->clean();
         }
+        break;
+    case Qt::Key_Q:
+        mScene->saveShader("fs_0_boilerplate");
         break;
     case Qt::Key_Space:
         mScene->updateScene(0);

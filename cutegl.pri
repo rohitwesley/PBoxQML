@@ -31,8 +31,7 @@ HEADERS += \
     $$PWD/core/camera.h \
     $$PWD/meshs/torusmesh.h \
     $$PWD/logic/particlesystem.h \
-    $$PWD/logic/particle.h \
-    $$PWD/logic/dynadraw.h
+    $$PWD/logic/particle.h
 
 
 SOURCES += \
@@ -65,8 +64,7 @@ SOURCES += \
     $$PWD/core/camera.cpp \
     $$PWD/meshs/torusmesh.cpp \
     $$PWD/logic/particlesystem.cpp \
-    $$PWD/logic/particle.cpp \
-    $$PWD/logic/dynadraw.cpp
+    $$PWD/logic/particle.cpp
 
 DISTFILES +=
 

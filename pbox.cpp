@@ -31,6 +31,9 @@
 #include <glmodel.h>
 #include <sqlmodel.h>
 #include <xmlhandler.h>
+#include <pboxtreemodel.h>
+#include <pboxmsgmodel.h>
+
 
 static void connectToDatabase()
 {
@@ -103,6 +106,11 @@ void PBox::setupPView()
 
     //Initialize C++ SVG Model and send to QML
     qmlRegisterType<SvgModel>("SvgUnderQML", 1, 0, "SvgModel");
+
+    //Initialize C++ SQL Tree Model and send to QML
+    qmlRegisterType<PboxTreeModel>("PboxTreeUnderQML", 1, 0, "PboxTreeModel");
+    //Initialize C++ SQL Tree Model Messanger and send to QML
+    qmlRegisterType<PboxMsgModel>("PboxMsgUnderQML", 1, 0, "PboxMsgModel");
 
     //Add font files
     QFontDatabase fontDatabase;
@@ -180,6 +188,8 @@ void PBox::setupPCompute()
 //    mesh->setCustomShaders("://shaders/light_vertex.vsh", "://shaders/light_fragment.fsh");
 //    mesh->setObjectName("Boilerplate");
     mesh->setCustomShaders("://shaders/light_vertex.vsh", "://shaders/fs_0_boilerplate.fsh");
+//    mesh->setObjectName("BSpline");
+//    mesh->setCustomShaders("://shaders/light_vertex.vsh", "://shaders/fs_0_bSpline.fsh");
 //    mesh->setObjectName("TextureBasic");
 //    mesh->setCustomShaders("://shaders/light_vertex.vsh", "://shaders/fs_1_texturebasic.fsh");
 //    mesh->setObjectName("2DBasic");
@@ -196,9 +206,9 @@ void PBox::setupPCompute()
 //    mesh->setCustomShaders("://shaders/light_vertex.vsh", "://shaders/fs_7_particles.fsh");
 //    mesh->setObjectName("HUD");
 //    mesh->setCustomShaders("://shaders/light_vertex.vsh", "://shaders/fs_8_hud.fsh");
-    //mesh->setTextureImage("://media/textures/tex16.png");
+    mesh->setTextureImage("://media/textures/tex16.png");
     //mesh->setTextureImage("://media/textures/tex04.png");
-    mesh->setTextureImage("://media/textures/damier.png");
+    //mesh->setTextureImage("://media/textures/damier.png");
     //mesh->setTextureImage("://media/textures/HUD_001_HUD_1x1.png");
     mesh->setOpacity(0.75);
     mesh->scale(40.0);

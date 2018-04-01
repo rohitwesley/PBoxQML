@@ -20,8 +20,6 @@ public:
     QStringList selectors;
 signals:
 
-public slots:
-
 private:
 
     cgl::View                   view;

@@ -367,13 +367,11 @@ float smax( float a, float b, float k )
     float h = clamp( 0.5 + 0.5*(b-a)/k, 0.0, 1.0 );
     return mix( a, b, h ) + k*h*(1.0-h);
 }
-
 vec3 smax( vec3 a, vec3 b, float k )
 {
     vec3 h = clamp( 0.5 + 0.5*(b-a)/k, 0.0, 1.0 );
     return mix( a, b, h ) + k*h*(1.0-h);
 }
-
 //---------------------------------------------------------------------------
 
 float hash1( float n )

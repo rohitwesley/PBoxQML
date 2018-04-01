@@ -31,9 +31,12 @@ public:
     void            setPlayMode(QString playMode);
     void            updateScene(int playMode);
     void            renderScene(Mesh *mesh,int id);
+    void            drawScene();
     void            saveScene(QString imgfileName);
+    QOpenGLShaderProgram    *shaderProgram() const { return mShaderProgram; }
+    void            setShaders(const QString &vertexFile, const QString &fragmentFile, const QString &geometryFile = QString());
+    void            saveShader(QString shaderfileName);
     void            initFBO();
-    void            drawTexture();
     void            draw();
     bool            isDebug(){ return mDebug; }
     QList<Mesh*>    meshes() const { return mMeshes; }
@@ -51,19 +54,24 @@ public:
     QOpenGLContext              *mContext;              // the OpenGL context of the scene
     bool                        mDebug;                 // debug mode allowing to view normals to mesh
     Camera                      *mCamera;               // the camera looking at the scene
-    QSize                       m_size;
-    float                       verticalAngle;
+    QSize                       m_size;                 // framebuffer size
     QList<Mesh*>                mMeshes;                // list of meshes
     QList<Light*>               mLights;                // List of light.. Currently works only with one
     QMatrix4x4                  mProjection;            // projection mtrix
     QMatrix4x4                  mView;                  // view matrix
-    QList<QOpenGLTexture*>      mTexture;               // texture od the mesh
+    float                       verticalAngle;          // Viewing Angle
+
+
+
+    QImage                      mSceneImage;            // CPU Scene Sample
+    QOpenGLTexture*             mSceneTexture;          // GPU Scene Sample
+    QList<QImage>               mChImage;               // texture Channels
+    QList<QOpenGLTexture*>      mChTexture;             // texture Channels
     bool                        has_texture = false;
-
-
-
-    QImage                      Sceneimage;
-    QOpenGLTexture              *m_GLTexture;
+    QString                     WorkingDirectory = "/Users/TecRT/Desktop/dump/renders";
+    QOpenGLShaderProgram        *mShaderProgram;        // GPU Scene Program
+    QString                     fragmentFile =  "://shaders/fs_0_boilerplate.fsh";
+    bool                        has_shader = false;
 
 
     QOpenGLFramebufferObject    *m_Fbo;

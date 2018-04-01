@@ -12,11 +12,13 @@ Scene::Scene(QObject *parent) :
     mContext(0),
     mDebug(false),
     mCamera(new Camera()),
-    m_Fbo(0)
+    m_Fbo(0),
+    mShaderProgram(0)
 {
 
     // Add default light... Otherwise black screen !
     addLight(new Light(5,5,5));
+    mShaderProgram = new QOpenGLShaderProgram(this);
     reset();
 
 }
@@ -39,7 +41,7 @@ void Scene::createMeshes()
 void Scene::reset()
 {
     camera()->reset();
-    logicSystem.setup(0,0,100,
+    logicSystem.setup(100,0,0,
                       1.0,1.0,
                       0.001,0.01);
     logicSystem.autoclean();
@@ -87,7 +89,9 @@ void Scene::renderScene(Mesh *mesh,int id)
 {
 
     //foreach (Mesh *mesh, mMeshes) {
-    QOpenGLShaderProgram *prg = mesh->shaderProgram();
+    QOpenGLShaderProgram *prg;
+    if(has_shader)prg = mShaderProgram;
+    else prg = mesh->shaderProgram();
     prg->bind();
     mesh->bind();
 
@@ -109,42 +113,11 @@ void Scene::renderScene(Mesh *mesh,int id)
 
 
     // object active
-    if(!has_texture) {
-        mTexture.clear();
-        for(int tex=0;tex<4;tex++){
-            QImage mTextureImage;
-            if(tex==0)mTextureImage.load("://media/textures/wood.jpg");
-            if(tex==1)mTextureImage.load("://media/textures/tex11.png");
-            if(tex==2)mTextureImage.load("://media/textures/mat_normals.jpg");
-            if(tex==3)mTextureImage.load("://media/textures/damier.png");
-            QOpenGLTexture* tempText  = new QOpenGLTexture(mTextureImage);
-            tempText->create();
-            mTexture.append(tempText);
-
-            //SAFE_DELETE(m_GLTexture);
-            //m_GLTexture = new QOpenGLTexture(QOpenGLTexture::Target::Target2DArray);
-            Sceneimage.load("://media/textures/wood.jpg");
-            m_GLTexture = new QOpenGLTexture(Sceneimage);
-            m_GLTexture->create();
-
-        }
-        has_texture = true;
-    }
-    else {
-        for(int tex=0;tex<4;tex++){
-            if (mTexture.at(tex)->isCreated()){
-                // Use texture unit 'tex' which contains the object texture
-                mTexture.at(tex)->bind(tex);
-                prg->setUniformValue("iChannel"+tex, tex);
-            }
-        }
-    }
-
-    qDebug()<<" isRec: "<<isRec;
+    //qDebug()<<" isRec: "<<isRec;
     //if(isFBOReady)
     if(logicSystem.isFBOTexture) {
         // Use texture unit 4 which contains the object texture
-        m_GLTexture->bind(4);
+        mSceneTexture->bind(4);
         prg->setUniformValue("fragFBOTexture", 4);
     }
 
@@ -229,6 +202,45 @@ void Scene::saveScene(QString imgfileName)
 
 }
 
+void Scene::setShaders(const QString &vertexFile, const QString &fragmentFile, const QString &geometryFile)
+{
+    if (QOpenGLContext::currentContext()){
+        mShaderProgram->removeAllShaders();
+        mShaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, vertexFile);
+        mShaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, fragmentFile);
+        if (!geometryFile.isEmpty())
+            mShaderProgram->addShaderFromSourceFile(QOpenGLShader::Geometry, geometryFile);
+        mShaderProgram->link();
+    }
+    else
+        qDebug()<<Q_FUNC_INFO<<"cannot set shaders. No context avaible";
+}
+
+void Scene::saveShader(QString imgfileName)
+{
+    fragmentFile = imgfileName;
+    //mShaderProgram->release();
+    has_shader = false;
+    setShaders("://shaders/light_vertex.vsh",
+               QString::fromLatin1("%1/%2\.glsl")
+               .arg(WorkingDirectory)
+               .arg(fragmentFile));
+    mShaderProgram->bind();
+    mShaderProgram->setUniformValue("fragTexture", 1);
+    mShaderProgram->setUniformValue("has_texture",true);
+    mShaderProgram->enableAttributeArray("position");
+    mShaderProgram->setAttributeBuffer("position", GL_FLOAT, 0, 3, sizeof(Vertex));
+    mShaderProgram->enableAttributeArray("color");
+    mShaderProgram->setAttributeBuffer("color", GL_FLOAT, 3 * 4, 3, sizeof(Vertex));
+    mShaderProgram->enableAttributeArray("uv");
+    mShaderProgram->setAttributeBuffer("uv", GL_FLOAT, 6 * 4, 2, sizeof(Vertex));
+    mShaderProgram->enableAttributeArray("normal");
+    mShaderProgram->setAttributeBuffer("normal", GL_FLOAT, 8 * 4, 2, sizeof(Vertex));
+    has_shader = true;
+
+}
+
+//===================================================================
 void Scene::initFBO()
 {
     if (!m_Fbo) {
@@ -269,8 +281,7 @@ void Scene::initFBO()
 
 }
 
-//===================================================================
-void Scene::drawTexture()
+void Scene::drawScene()
 {
 
     //TODO render to texture
@@ -314,36 +325,46 @@ void Scene::draw()
     initFBO();
 
     if(logicSystem.getPlayMode()=="playLoop" && isRec) {
-        m_GLTexture->destroy();
-        m_GLTexture->create();
+        mSceneTexture->destroy();
+        mSceneTexture->create();
         int index  = logicSystem.getindexSubParticles(logicSystem.UserIndex);
         QString imgfileName;
         if(isManulaPlay)
-            imgfileName = QString::fromLatin1("/Users/TecRT/Desktop/dump/renders/image_%1\.png").arg(logicSystem.getParticleName(logicSystem.UserIndex));
+            imgfileName = QString::fromLatin1("%1/image_%2\.png")
+                    .arg(WorkingDirectory)
+                    .arg(logicSystem.getParticleName(logicSystem.UserIndex));
         else
-            imgfileName = QString::fromLatin1("/Users/TecRT/Desktop/dump/renders/image_000%1_%2\.png").arg(index).arg(logicSystem.getParticleName(logicSystem.UserIndex));
-        Sceneimage.load(imgfileName);
-        //m_GLTexture->setMinificationFilter(QOpenGLTexture::Nearest);
-        //m_GLTexture->setMagnificationFilter(QOpenGLTexture::Nearest);
-        // m_GLTexture->setSize(m_width,m_height,1 );
-        //m_GLTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
-        m_GLTexture->setData(Sceneimage);
+            imgfileName = QString::fromLatin1("%1/image_000%2_%3\.png")
+                    .arg(WorkingDirectory)
+                    .arg(index)
+                    .arg(logicSystem.getParticleName(logicSystem.UserIndex));
+        mSceneImage.load(imgfileName);
+        //mSceneTexture->setMinificationFilter(QOpenGLTexture::Nearest);
+        //mSceneTexture->setMagnificationFilter(QOpenGLTexture::Nearest);
+        // mSceneTexture->setSize(m_width,m_height,1 );
+        //mSceneTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
+        mSceneTexture->setData(mSceneImage);
         logicSystem.isFBOTexture = true;   // got frame as texture
     }
     else {
         logicSystem.isFBOTexture = false;   // got frame as texture
     }
 
-    drawTexture();
+    drawScene();
 
     if(logicSystem.getPlayMode()=="sampleLoop"){
         if(isFBOReady){
             int index  = logicSystem.getindexSubParticles(logicSystem.UserIndex);
             QString imgfileName;
             if(isManulaPlay)
-                imgfileName = QString::fromLatin1("/Users/TecRT/Desktop/dump/renders/image_%1\.png").arg(logicSystem.getParticleName(logicSystem.UserIndex));
+                imgfileName = QString::fromLatin1("%1/image_%2\.png")
+                        .arg(WorkingDirectory)
+                        .arg(logicSystem.getParticleName(logicSystem.UserIndex));
             else
-                imgfileName = QString::fromLatin1("/Users/TecRT/Desktop/dump/renders/image_000%1_%2\.png").arg(index).arg(logicSystem.getParticleName(logicSystem.UserIndex));
+                imgfileName = QString::fromLatin1("%1/image_000%2_%3\.png")
+                        .arg(WorkingDirectory)
+                        .arg(index)
+                        .arg(logicSystem.getParticleName(logicSystem.UserIndex));
             saveScene(imgfileName);
             //if manual play save current image else save all images till end of loop
             //then get back to play mode.
